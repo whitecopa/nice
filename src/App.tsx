@@ -40,6 +40,7 @@ export default function App() {
   const [stats, setStats] = useState<StatsOverview | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [isDeploying, setIsDeploying] = useState<boolean>(false);
+  const [isTogglingBot, setIsTogglingBot] = useState<boolean>(false);
 
   const fetchAllData = async () => {
     try {
@@ -117,6 +118,38 @@ export default function App() {
     }
   };
 
+  const handleToggleBotHost = async () => {
+    setIsTogglingBot(true);
+    try {
+      if (botStatus?.isConnected) {
+        // Disconnect bot to free gateway for Railway
+        await fetch('/api/bot/stop', { method: 'POST' });
+      } else {
+        // Connect bot locally
+        const token = config?.token;
+        if (!token) {
+          alert('Please enter your Discord Bot Token in Railway & Config first.');
+          setActiveTab('settings');
+          return;
+        }
+        const res = await fetch('/api/bot/start', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ token })
+        });
+        const data = await res.json();
+        if (!data.success) {
+          alert(`Could not start local bot host: ${data.message}`);
+        }
+      }
+      await fetchAllData();
+    } catch (err) {
+      console.error('Error toggling bot host:', err);
+    } finally {
+      setIsTogglingBot(false);
+    }
+  };
+
   const handleOpenCodeCheckerForProduct = (productId: number) => {
     setActiveTab('codes');
   };
@@ -131,7 +164,9 @@ export default function App() {
         stats={stats}
         onRefresh={fetchAllData}
         onDeployCommands={handleDeployCommands}
+        onToggleBotHost={handleToggleBotHost}
         isDeploying={isDeploying}
+        isTogglingBot={isTogglingBot}
       />
 
       {/* Main Content Area */}

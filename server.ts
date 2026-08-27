@@ -8,14 +8,22 @@ import { deliverOrder } from './server/delivery';
 
 async function startServer() {
   const app = express();
-  const PORT = 3000;
+  const PORT = Number(process.env.PORT) || 3000;
 
   app.use(cors());
   app.use(express.json({ limit: '10mb' }));
 
+  // --- ROOT HEALTH / INFO (Railway healthchecks fallback) ---
+  app.get('/', (req, res, next) => {
+    if (req.headers.accept?.includes('application/json') || req.path === '/healthz') {
+      return res.status(200).send('OK');
+    }
+    next();
+  });
+
   // --- HEALTH CHECK (For Railway & AI Studio) ---
-  app.get(['/api/health', '/health'], (req, res) => {
-    res.json({
+  app.get(['/api/health', '/health', '/healthz', '/ping'], (req, res) => {
+    res.status(200).json({
       status: 'ok',
       service: 'discord-automated-shop-bot',
       botConnected: botManager.isConnected,

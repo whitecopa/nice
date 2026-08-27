@@ -14,7 +14,10 @@ import {
   RefreshCw, 
   Layers,
   ExternalLink,
-  ShieldCheck
+  ShieldCheck,
+  Power,
+  Play,
+  Square
 } from 'lucide-react';
 
 interface NavbarProps {
@@ -24,7 +27,9 @@ interface NavbarProps {
   stats: StatsOverview | null;
   onRefresh: () => void;
   onDeployCommands: () => void;
+  onToggleBotHost: () => void;
   isDeploying: boolean;
+  isTogglingBot: boolean;
 }
 
 export const Navbar: React.FC<NavbarProps> = ({
@@ -34,7 +39,9 @@ export const Navbar: React.FC<NavbarProps> = ({
   stats,
   onRefresh,
   onDeployCommands,
-  isDeploying
+  onToggleBotHost,
+  isDeploying,
+  isTogglingBot
 }) => {
   const tabs = [
     { id: 'codes', label: 'Automated Code Checker', icon: KeyRound, badge: stats?.availableCodes },
@@ -80,6 +87,29 @@ export const Navbar: React.FC<NavbarProps> = ({
               <span className="text-slate-400 font-mono">
                 {botStatus?.ping && botStatus.ping > 0 ? `${botStatus.ping}ms` : 'Ready'}
               </span>
+            </div>
+
+            {/* Host ON / OFF Toggle Switch for Railway handover */}
+            <div className="flex items-center space-x-2 bg-slate-950 border border-slate-800 p-1 rounded-xl">
+              <span className="text-[11px] text-slate-400 font-medium px-1.5 hidden sm:inline">
+                Local Bot Host:
+              </span>
+              <button
+                id="host-toggle-btn"
+                onClick={onToggleBotHost}
+                disabled={isTogglingBot}
+                className={`flex items-center space-x-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition shadow-sm ${
+                  botStatus?.isConnected
+                    ? 'bg-rose-600 hover:bg-rose-500 text-white shadow-rose-600/20'
+                    : 'bg-emerald-600 hover:bg-emerald-500 text-white shadow-emerald-600/20'
+                }`}
+                title={botStatus?.isConnected ? "Turn OFF local bot host so Railway can connect without gateway conflicts" : "Turn ON local bot host"}
+              >
+                <Power className="w-3.5 h-3.5" />
+                <span>
+                  {isTogglingBot ? 'Switching...' : botStatus?.isConnected ? 'TURN HOST OFF (For Railway)' : 'TURN HOST ON'}
+                </span>
+              </button>
             </div>
 
             {/* Deploy Slash Commands button */}
