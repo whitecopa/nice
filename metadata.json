@@ -1,0 +1,6 @@
+{
+  "name": "Discord Shop Bot & Dashboard",
+  "description": "Automated Discord Shop Bot with digital code verification, automated delivery, inventory stock control, payment verification, and Railway deployment support.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
